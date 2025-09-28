@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from typing import List, Union
 import html
 import re
-import contractions
+import contractions 
 import spacy
 
 @dataclass
@@ -113,11 +113,13 @@ class TextPreprocessor:
 
     def normalize_contractions(self, text: str) -> str:
         """Expand common contractions (e.g., don't → do not)."""
-
+        if not isinstance(text, str):
+            return text
         if self.config.expand_contractions:
-            return  contractions.fix(text)
-        
+         # contractions.fix handles a lot of cases (requires package installed)
+            return contractions.fix(text)
         return text
+
 
     def tokenize(self, text: str) -> List[str]:
         """
@@ -220,5 +222,29 @@ class TextPreprocessor:
 
         return [self.transform(text) for text in texts]
 
+
+    def transform_corpus_fast(self, texts: list[str], batch_size: int = 200, n_process: int = 1) -> list[str]:
+        """
+        Faster preprocessing of a list of texts using spaCy's nlp.pipe().
+        Uses smaller batch size to reduce memory usage.
+        """
+        results = []
+
+        for doc in self.nlp.pipe(texts, batch_size=batch_size, n_process=n_process):
+            tokens = [t.lemma_ if self.config.lemmatize else t.text for t in doc]
+
+            # stopword filtering
+            if self.config.remove_stopwords:
+                tokens = [
+                    t for t in tokens
+                    if not (t in self.nlp.Defaults.stop_words and not (self.config.keep_negations and t in ["no", "not", "nor"]))
+                ]
+
+            # remove very short / non-alphanumeric tokens
+            tokens = [t for t in tokens if len(t) > 1 and any(c.isalnum() for c in t)]
+
+            results.append(" ".join(tokens))
+
+        return results
 
 
