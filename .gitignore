@@ -211,4 +211,6 @@ __marimo__/
 data/processed/
 data/raw/
 *.csv
+models/doc2vec.model
+models/word2vec.model
 
