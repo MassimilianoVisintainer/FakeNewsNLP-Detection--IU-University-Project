@@ -1,87 +1,69 @@
 """
 train_doc2vec.py
 ----------------
-Train a Doc2Vec embedding model for Fake News Detection.
-Use learned document embeddings with Logistic Regression.
+Trains a Doc2Vec + Logistic Regression classifier for fake news detection.
 """
 
+import os
+import numpy as np
 import pandas as pd
-from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, accuracy_score
-from pathlib import Path
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import joblib
 
-
-def build_doc2vec(tagged_docs, vector_size=100, window=5, min_count=2, workers=4, epochs=20):
-    """Train a Doc2Vec model from tagged documents."""
-    model = Doc2Vec(
-        documents=tagged_docs,
-        vector_size=vector_size,
-        window=window,
-        min_count=min_count,
-        workers=workers,
-        epochs=epochs
-    )
-    return model
-
+# Paths
+DATA_PATH = "data/processed/cleaned.csv"
+MODELS_DIR = "models"
+os.makedirs(MODELS_DIR, exist_ok=True)
 
 def main():
-    # -------------------
-    # Step 1: Load data
-    # -------------------
-    train = pd.read_csv("data/processed/train.csv")
-    test = pd.read_csv("data/processed/test.csv")
+    # Load dataset
+    df = pd.read_csv(DATA_PATH)
+    df["clean_text"] = df["clean_text"].fillna("")
 
-    # Tokenize (split by space since we already preprocessed)
-    train_tokens = train["clean_text"].fillna("").apply(str.split).tolist()
-    test_tokens = test["clean_text"].fillna("").apply(str.split).tolist()
+    texts = df["clean_text"].tolist()
+    labels = df["label"].tolist()
 
-    y_train = train["label"]
-    y_test = test["label"]
+    # Train/test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        texts, labels, test_size=0.2, random_state=42, stratify=labels
+    )
 
-    # -------------------
-    # Step 2: Create TaggedDocuments
-    # -------------------
-    tagged_train = [TaggedDocument(words=tokens, tags=[i]) for i, tokens in enumerate(train_tokens)]
+    # Prepare data for Doc2Vec
+    train_tagged = [TaggedDocument(words=t.split(), tags=[i]) for i, t in enumerate(X_train)]
+    test_tagged = [TaggedDocument(words=t.split(), tags=[i]) for i, t in enumerate(X_test)]
 
-    # -------------------
-    # Step 3: Train Doc2Vec
-    # -------------------
-    print("Training Doc2Vec model...")
-    d2v_model = build_doc2vec(tagged_train)
+    # Train Doc2Vec model
+    model = Doc2Vec(vector_size=100, window=5, min_count=2, workers=4, epochs=20)
+    model.build_vocab(train_tagged)
+    model.train(train_tagged, total_examples=model.corpus_count, epochs=model.epochs)
 
-    # -------------------
-    # Step 4: Vectorize documents
-    # -------------------
-    X_train = [d2v_model.dv[i] for i in range(len(tagged_train))]
-    X_test = [d2v_model.infer_vector(tokens) for tokens in test_tokens]
+    # Vectorize train/test sets
+    X_train_vectors = [model.infer_vector(doc.words) for doc in train_tagged]
+    X_test_vectors = [model.infer_vector(doc.words) for doc in test_tagged]
 
-    # -------------------
-    # Step 5: Train classifier
-    # -------------------
-    clf = LogisticRegression(max_iter=1000, solver="liblinear")
-    clf.fit(X_train, y_train)
+    # Logistic Regression classifier
+    clf = LogisticRegression(max_iter=500)
+    clf.fit(X_train_vectors, y_train)
 
-    # -------------------
-    # Step 6: Evaluate
-    # -------------------
-    preds = clf.predict(X_test)
-    acc = accuracy_score(y_test, preds)
-    print(f"\nAccuracy: {acc:.4f}")
-    print(classification_report(y_test, preds, digits=3))
+    # Predictions
+    y_pred = clf.predict(X_test_vectors)
+    y_proba = clf.predict_proba(X_test_vectors)[:, 1]
 
-    # -------------------
-    # Step 7: Save models
-    # -------------------
-    out_dir = Path("models")
-    out_dir.mkdir(exist_ok=True)
+    # Print metrics
+    print(classification_report(y_test, y_pred))
 
-    d2v_model.save(str(out_dir / "doc2vec.model"))
-    joblib.dump(clf, out_dir / "logreg_doc2vec.pkl")
+    # Save everything
+    joblib.dump(clf, os.path.join(MODELS_DIR, "doc2vec_logreg.pkl"))
+    model.save(os.path.join(MODELS_DIR, "doc2vec_gensim.model"))  # save gensim model
 
-    print("\n✅ Doc2Vec model + classifier saved in 'models/'")
+    np.save(os.path.join(MODELS_DIR, "doc2vec_y_test.npy"), y_test)
+    np.save(os.path.join(MODELS_DIR, "doc2vec_y_pred.npy"), y_pred)
+    np.save(os.path.join(MODELS_DIR, "doc2vec_y_proba.npy"), y_proba)
 
+    print("✅ Doc2Vec model and predictions saved to /models")
 
 if __name__ == "__main__":
     main()

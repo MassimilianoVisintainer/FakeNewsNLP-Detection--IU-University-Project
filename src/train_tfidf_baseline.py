@@ -1,99 +1,65 @@
 """
 train_tfidf_baseline.py
 -----------------------
-Baseline model for Fake News Detection using TF-IDF + Logistic Regression.
-
-Steps:
-- Load preprocessed train/test splits
-- Transform text using TF-IDF (unigrams + bigrams)
-- Train Logistic Regression
-- Evaluate on test set
-- Save model and vectorizer
-- Inspect top features
+Baseline model: TF-IDF + Logistic Regression
 """
 
+import os
+import joblib
 import pandas as pd
-from pathlib import Path
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, accuracy_score
-import joblib
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 
-
-def show_top_features(vectorizer, model, n=20):
-    """Display top words most indicative of fake vs real news."""
-    feature_names = vectorizer.get_feature_names_out()
-    coefs = model.coef_[0]
-
-    # Fake = positive class (label=1), Real = negative class (label=0)
-    top_fake = sorted(zip(coefs, feature_names), reverse=True)[:n]
-    top_real = sorted(zip(coefs, feature_names))[:n]
-
-    print("\nTop features for FAKE news:")
-    for coef, feat in top_fake:
-        print(f"{feat:20s} {coef:.4f}")
-
-    print("\nTop features for REAL news:")
-    for coef, feat in top_real:
-        print(f"{feat:20s} {coef:.4f}")
-
+# Paths
+DATA_PATH = "data/processed/cleaned.csv"
+MODELS_DIR = "models"
+os.makedirs(MODELS_DIR, exist_ok=True)
 
 def main():
-    # -------------------
-    # Step 1: Load data
-    # -------------------
-    train = pd.read_csv("data/processed/train.csv")
-    test = pd.read_csv("data/processed/test.csv")
+    # Load dataset
+    df = pd.read_csv(DATA_PATH)
 
-    X_train = train["clean_text"].fillna("")
-    y_train = train["label"]
+    # Ensure no NaN values in clean_text
+    df["clean_text"] = df["clean_text"].fillna("")
 
-    X_test = test["clean_text"].fillna("")
-    y_test = test["label"]
+    texts = df["clean_text"]
+    labels = df["label"]
 
-    # -------------------
-    # Step 2: TF-IDF
-    # -------------------
-    vectorizer = TfidfVectorizer(
-        max_features=20000,   # limit vocab size
-        ngram_range=(1, 2),   # unigrams + bigrams
-        stop_words="english"
+    # Train/test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        texts, labels, test_size=0.2, random_state=42, stratify=labels
     )
 
+    # TF-IDF Vectorizer
+    vectorizer = TfidfVectorizer(max_features=20000, ngram_range=(1, 2))
     X_train_tfidf = vectorizer.fit_transform(X_train)
     X_test_tfidf = vectorizer.transform(X_test)
 
-    # -------------------
-    # Step 3: Train model
-    # -------------------
-    clf = LogisticRegression(max_iter=1000, solver="liblinear")
+    # Logistic Regression
+    clf = LogisticRegression(max_iter=500, n_jobs=-1)
     clf.fit(X_train_tfidf, y_train)
 
-    # -------------------
-    # Step 4: Evaluate
-    # -------------------
-    preds = clf.predict(X_test_tfidf)
+    # Predictions
+    y_pred = clf.predict(X_test_tfidf)
+    y_proba = clf.predict_proba(X_test_tfidf)[:, 1]
 
-    acc = accuracy_score(y_test, preds)
-    print(f"\nAccuracy: {acc:.4f}")
-    print("\nClassification Report:")
-    print(classification_report(y_test, preds, digits=3))
+    # Print report
+    print(classification_report(y_test, y_pred))
 
-    # -------------------
-    # Step 5: Save model
-    # -------------------
-    out_dir = Path("models")
-    out_dir.mkdir(exist_ok=True)
+    # Save model + test data
+    joblib.dump(clf, os.path.join(MODELS_DIR, "tfidf_logreg.pkl"))
+    joblib.dump(vectorizer, os.path.join(MODELS_DIR, "tfidf_vectorizer.pkl"))
+    joblib.dump((X_test_tfidf, y_test), os.path.join(MODELS_DIR, "tfidf_test.pkl"))
 
-    joblib.dump(clf, out_dir / "logreg_tfidf.pkl")
-    joblib.dump(vectorizer, out_dir / "tfidf_vectorizer.pkl")
-    print("\n✅ Model and vectorizer saved in 'models/'")
+    # Save predictions for evaluation
+    import numpy as np
+    np.save(os.path.join(MODELS_DIR, "tfidf_y_test.npy"), y_test)
+    np.save(os.path.join(MODELS_DIR, "tfidf_y_pred.npy"), y_pred)
+    np.save(os.path.join(MODELS_DIR, "tfidf_y_proba.npy"), y_proba)
 
-    # -------------------
-    # Step 6: Feature inspection
-    # -------------------
-    show_top_features(vectorizer, clf, n=20)
-
+    print("✅ TF-IDF baseline model and predictions saved to /models")
 
 if __name__ == "__main__":
     main()
