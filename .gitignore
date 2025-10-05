@@ -214,3 +214,10 @@ data/raw/
 models/doc2vec.model
 models/word2vec.model
 
+# Data
+data/processed/*
+!data/processed/.gitkeep
+
+# Models
+models/*
+!models/.gitkeep
