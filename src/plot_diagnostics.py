@@ -7,7 +7,9 @@ from sklearn.metrics import roc_curve, auc, precision_recall_curve, confusion_ma
 MODELS_DIR = "models"
 os.makedirs(MODELS_DIR, exist_ok=True)
 
-MODELS = ["tfidf", "doc2vec", "bert"]  # will skip those without predictions
+MODELS = ["tfidf", "doc2vec", "bert", "naive_bayes", "random_forest", "svm", "xgboost"]  
+
+RESULTS_DIR = "results"
 
 
 def load_predictions(model_name):
@@ -40,7 +42,7 @@ def plot_roc_curves():
     plt.ylabel("True Positive Rate")
     plt.title("ROC Curves")
     plt.legend()
-    plt.savefig(os.path.join(MODELS_DIR, "roc_curves.png"))
+    plt.savefig(os.path.join(RESULTS_DIR, "roc_curves.png"))
     plt.close()
 
 
@@ -60,7 +62,7 @@ def plot_pr_curves():
     plt.ylabel("Precision")
     plt.title("Precision-Recall Curves")
     plt.legend()
-    plt.savefig(os.path.join(MODELS_DIR, "pr_curves.png"))
+    plt.savefig(os.path.join(RESULTS_DIR, "pr_curves.png"))
     plt.close()
 
 
@@ -75,7 +77,7 @@ def plot_confusion_matrices():
         disp = ConfusionMatrixDisplay(confusion_matrix=cm)
         disp.plot(cmap="Blues", values_format="d")
         plt.title(f"Confusion Matrix - {model.upper()}")
-        plt.savefig(os.path.join(MODELS_DIR, f"cm_{model}.png"))
+        plt.savefig(os.path.join(RESULTS_DIR, f"cm_{model}.png"))
         plt.close()
 
 
