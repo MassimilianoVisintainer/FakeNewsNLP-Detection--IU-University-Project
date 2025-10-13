@@ -2,31 +2,125 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Fake News Detector</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detection</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-green': '#34D399',
+                        'primary-red': '#F87171',
+                        'gray-dark': '#1F2937',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for better focus and readability */
+        :root {
+            --inter: 'Inter', sans-serif;
+        }
+        
+        body {
+            font-family: var(--inter);
+            background-color: #f7f7f7;
+        }
+        
+        .result-box {
+            transition: all 0.3s ease-in-out;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
-<body>
-    <h1>Fake News Detector</h1>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-white shadow-2xl rounded-xl p-8 space-y-6">
 
-    <form method="post">
-        <label for="model">Select model:</label>
-        <select name="model" id="model">
-            {% for key, cfg in models.items() %}
-                <option value="{{ key }}" {% if selected_model == key %}selected{% endif %}>
-                    {{ cfg.name }}
-                </option>
-            {% endfor %}
-        </select>
-        <br><br>
+        <!-- Title -->
+        <h1 class="text-3xl font-extrabold text-center text-gray-dark flex items-center justify-center">
+            <span class="text-4xl mr-2">🧠</span> Fake News Detector
+        </h1>
+        <p class="text-center text-gray-500">Select a classification model and paste the news article below for real-time analysis.</p>
 
-        <textarea name="news_text" rows="6" cols="60" placeholder="Enter news article text...">{{ text }}</textarea>
-        <br><br>
+        <!-- Form -->
+        <form method="POST" action="/" class="space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Model Selection -->
+                <div>
+                    <label for="model" class="block text-sm font-medium text-gray-700 mb-2">Select Model:</label>
+                    <select 
+                        name="model" 
+                        id="model" 
+                        required 
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-green focus:border-primary-green transition duration-150 ease-in-out shadow-sm text-gray-dark bg-white"
+                    >
+                        <option value="">-- Choose a model --</option>
+                        <!-- 
+                            FIX: Using 'key' for the display name. Removed Jinja syntax from 
+                            this comment to resolve the jinja2.exceptions.UndefinedError.
+                        -->
+                        {% for key, cfg in models.items() %}
+                            <option value="{{ key }}" {% if selected_model == key %}selected{% endif %}>
+                                {{ key }} 
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Prediction Button (placed next to select on desktop) -->
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
+                        Predict
+                    </button>
+                </div>
+            </div>
 
-        <button type="submit">Predict</button>
-    </form>
+            <!-- Text Area -->
+            <div>
+                <label for="text" class="block text-sm font-medium text-gray-700 mb-2">Enter News Text:</label>
+                <textarea 
+                    name="text" 
+                    id="text" 
+                    rows="10" 
+                    placeholder="Paste your news article here for classification..." 
+                    required
+                    class="w-full p-4 border border-gray-300 rounded-lg resize-none focus:ring-primary-green focus:border-primary-green transition duration-150 ease-in-out shadow-inner text-base"
+                >{{ text }}</textarea>
+            </div>
+            
+        </form>
 
-    {% if prediction %}
-        <h2>Result: {{ prediction }}</h2>
-    {% endif %}
+        <!-- Result Display -->
+        {% if prediction %}
+            <div class="result-box mt-8 p-5 rounded-xl shadow-lg {% if label_color == 'red' %}bg-primary-red/10 border-l-4 border-primary-red{% else %}bg-primary-green/10 border-l-4 border-primary-green{% endif %}">
+                <h3 class="text-xl font-bold text-gray-dark flex items-center">
+                    Prediction Result: 
+                    <span class="ml-3 font-extrabold text-2xl {% if label_color == 'red' %}text-primary-red{% else %}text-primary-green{% endif %}">
+                        {{ prediction }}
+                    </span>
+                </h3>
+            </div>
+        {% endif %}
+
+        <!-- Error Display -->
+        {% if error %}
+            <div class="result-box mt-8 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded-lg shadow-md">
+                <p class="font-medium">{{ error }}</p>
+            </div>
+        {% endif %}
+
+    </div>
 </body>
 </html>

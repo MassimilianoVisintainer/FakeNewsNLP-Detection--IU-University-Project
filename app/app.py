@@ -1,50 +1,92 @@
-from flask import Flask, render_template, request
-import joblib
 import os
+import sys
+import joblib
+import numpy as np
+from flask import Flask, render_template, request
 
+# Ensure project root is on sys.path when running this script from the `app/` folder
+# so imports like `from src.preprocessing import ...` work.
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from src.preprocessing import TextPreprocessor, PreprocessConfig
 app = Flask(__name__)
 
-MODELS_DIR = "../models"
+# --- PATHS ---
+MODELS_DIR = os.path.join(os.path.dirname(__file__), "..", "models")
 
-# Define available models
-models = {
-    "tfidf": {"name": "TF-IDF + Logistic Regression", "file": "tfidf_logreg.pkl", "vectorizer": "tfidf_vectorizer.pkl"},
-    "svm": {"name": "SVM (Linear)", "file": "svm.pkl", "vectorizer": "svm_vectorizer.pkl"},
-    "random_forest": {"name": "Random Forest", "file": "random_forest.pkl", "vectorizer": "rf_vectorizer.pkl"},
-    "naive_bayes": {"name": "Naive Bayes", "file": "naive_bayes.pkl", "vectorizer": "nb_vectorizer.pkl"},
-    "xgboost": {"name": "XGBoost", "file": "xgboost.pkl", "vectorizer": "xgb_vectorizer.pkl"},
-}
+# --- INITIALIZE PREPROCESSOR ---
+config = PreprocessConfig(
+    lowercase=True,
+    remove_urls=True,
+    remove_emails=True,
+    remove_numbers=True,
+    expand_contractions=True,
+    remove_stopwords=True,
+    lemmatize=True,
+    keep_negations=True,
+    remove_bylines=True,
+    remove_html=True
+)
+preprocessor = TextPreprocessor(config)
 
+# --- LOAD MODELS ---
+models = {}
+
+def load_model(name, model_file, vectorizer_file):
+    model_path = os.path.join(MODELS_DIR, model_file)
+    vect_path = os.path.join(MODELS_DIR, vectorizer_file)
+    if os.path.exists(model_path) and os.path.exists(vect_path):
+        models[name] = {
+            "model": joblib.load(model_path),
+            "vectorizer": joblib.load(vect_path)
+        }
+
+# Load available models
+load_model("TF-IDF + Logistic Regression", "tfidf_model.pkl", "tfidf_vectorizer.pkl")
+load_model("SVM (LinearSVC)", "svm.pkl", "svm_vectorizer.pkl")
+load_model("Random Forest", "random_forest.pkl", "rf_vectorizer.pkl")
+load_model("Naive Bayes", "naive_bayes.pkl", "nb_vectorizer.pkl")
+load_model("XGBoost", "xgboost.pkl", "xgb_vectorizer.pkl")
+
+
+# --- ROUTES ---
 @app.route("/", methods=["GET", "POST"])
 def index():
     prediction = None
     text = ""
-    selected_model = "tfidf"  # default model
+    selected_model = None
+    label_color = None
 
     if request.method == "POST":
-        text = request.form.get("news_text", "")
-        selected_model = request.form.get("model", "tfidf")  # ✅ safe fallback
+        text = request.form["text"]
+        selected_model = request.form.get("model")
 
-        if text.strip():
-            try:
-                cfg = models[selected_model]
-                clf = joblib.load(os.path.join(MODELS_DIR, cfg["file"]))
-                vectorizer = joblib.load(os.path.join(MODELS_DIR, cfg["vectorizer"]))
+        if not selected_model or selected_model not in models:
+            return render_template("index.html", models=models, error="Please select a model.", text=text)
 
-                X_input = vectorizer.transform([text])
-                pred = clf.predict(X_input)[0]
+        model_config = models[selected_model]
+        model = model_config["model"]
+        vectorizer = model_config["vectorizer"]
 
-                prediction = "Fake News ❌" if pred == 1 else "Real News ✅"
-            except Exception as e:
-                prediction = f"⚠️ Error: {str(e)}"
+        # ✅ Proper preprocessing using your TextPreprocessor
+        clean_text = preprocessor.transform(text)
+        X = vectorizer.transform([clean_text])
+        pred = model.predict(X)[0]
+
+        prediction = "Fake News 🟥" if pred == 1 else "Real News 🟩"
+        label_color = "red" if pred == 1 else "green"
 
     return render_template(
         "index.html",
         models=models,
-        selected_model=selected_model,
         prediction=prediction,
-        text=text
+        selected_model=selected_model,
+        text=text,
+        label_color=label_color
     )
+
 
 if __name__ == "__main__":
     app.run(debug=True)
