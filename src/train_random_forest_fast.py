@@ -60,7 +60,7 @@ def main():
     np.save(os.path.join(MODELS_DIR, "random_forest_y_pred.npy"), y_pred)
     np.save(os.path.join(MODELS_DIR, "random_forest_y_proba.npy"), y_proba)
 
-    print("✅ Fast Random Forest model saved to /models")
+    print("Fast Random Forest model saved to /models")
 
 if __name__ == "__main__":
     main()

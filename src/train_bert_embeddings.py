@@ -101,7 +101,7 @@ def main():
     tokenizer.save_pretrained(out_dir / "distilbert_tokenizer")
     bert_model.save_pretrained(out_dir / "distilbert_model")
 
-    print("\n✅ Saved classifier + BERT model in 'models/'")
+    print("\n Saved classifier + BERT model in 'models/'")
 
 
 if __name__ == "__main__":

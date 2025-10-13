@@ -6,7 +6,7 @@ def main():
     # Step 1: Load cleaned dataset
     df = pd.read_csv("data/processed/cleaned.csv")
 
-    # Step 2: Split into train/test (stratify = keep class balance)
+    # Step 2: Split into train/test 
     train, test = train_test_split(
         df,
         test_size=0.2,

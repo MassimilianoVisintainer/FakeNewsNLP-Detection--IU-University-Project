@@ -1,4 +1,3 @@
-# src/train_traditional_ml.py
 import os
 import numpy as np
 import pandas as pd
@@ -22,13 +21,13 @@ def load_data():
     return df["clean_text"].astype(str).tolist(), df["label"].astype(int).tolist()
 
 def main():
-    print("📥 Loading dataset...")
+    print("Loading dataset...")
     X, y = load_data()
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
     )
 
-    print("🔹 Extracting TF-IDF features...")
+    print("Extracting TF-IDF features...")
     vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1, 2))
     X_train_tfidf = vectorizer.fit_transform(X_train)
     X_test_tfidf = vectorizer.transform(X_test)
@@ -53,7 +52,7 @@ def main():
     }
 
     for name, model in models.items():
-        print(f"\n🚀 Training {name}...")
+        print(f"\n Training {name}...")
         model.fit(X_train_tfidf, y_train)
 
         if hasattr(model, "predict_proba"):
@@ -70,7 +69,7 @@ def main():
         np.save(os.path.join(MODELS_DIR, f"{name}_y_pred.npy"), y_pred)
         np.save(os.path.join(MODELS_DIR, f"{name}_y_proba.npy"), y_proba)
 
-        print(f"✅ {name} model and predictions saved to /models")
+        print(f" {name} model and predictions saved to /models")
 
 if __name__ == "__main__":
     main()

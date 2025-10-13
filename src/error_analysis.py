@@ -19,13 +19,13 @@ def load_predictions(model_name):
 
 
 def analyze_model(model_name, test_texts):
-    print(f"\n🔍 Error Analysis for {model_name.upper()}")
+    print(f"\n Error Analysis for {model_name.upper()}")
 
     # Load predictions
     y_test, y_pred, y_proba = load_predictions(model_name)
 
     # Classification report
-    print("\n📊 Classification Report:")
+    print("\n Classification Report:")
     print(classification_report(y_test, y_pred, digits=4))
 
     # Confusion matrix
@@ -57,7 +57,7 @@ def analyze_model(model_name, test_texts):
     df_errors = pd.DataFrame(misclassified)
     csv_path = f"outputs/{model_name}_misclassified.csv"
     df_errors.to_csv(csv_path, index=False, encoding="utf-8")
-    print(f"⚠️ Misclassified examples saved: {csv_path}")
+    print(f"Misclassified examples saved: {csv_path}")
 
 
 if __name__ == "__main__":
@@ -69,4 +69,4 @@ if __name__ == "__main__":
         try:
             analyze_model(model, test_texts)
         except FileNotFoundError:
-            print(f"⚠️ Skipping {model} (predictions not found)")
+            print(f"Skipping {model} (predictions not found)")

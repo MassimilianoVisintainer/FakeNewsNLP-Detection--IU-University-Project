@@ -57,13 +57,13 @@ def main():
 
     # Save everything
     joblib.dump(clf, os.path.join(MODELS_DIR, "doc2vec_logreg.pkl"))
-    model.save(os.path.join(MODELS_DIR, "doc2vec_gensim.model"))  # save gensim model
+    model.save(os.path.join(MODELS_DIR, "doc2vec_gensim.model")) 
 
     np.save(os.path.join(MODELS_DIR, "doc2vec_y_test.npy"), y_test)
     np.save(os.path.join(MODELS_DIR, "doc2vec_y_pred.npy"), y_pred)
     np.save(os.path.join(MODELS_DIR, "doc2vec_y_proba.npy"), y_proba)
 
-    print("✅ Doc2Vec model and predictions saved to /models")
+    print(" Doc2Vec model and predictions saved to /models")
 
 if __name__ == "__main__":
     main()

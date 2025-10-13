@@ -86,7 +86,7 @@ def main():
     w2v_model.save(str(out_dir / "word2vec.model"))
     joblib.dump(clf, out_dir / "logreg_word2vec.pkl")
 
-    print("\n✅ Word2Vec model + classifier saved in 'models/'")
+    print("\n Word2Vec model + classifier saved in 'models/'")
 
 
 if __name__ == "__main__":

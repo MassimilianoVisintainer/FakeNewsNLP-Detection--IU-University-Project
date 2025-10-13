@@ -63,7 +63,7 @@ def main():
     np.save(os.path.join(MODELS_DIR, "xgboost_y_pred.npy"), y_pred)
     np.save(os.path.join(MODELS_DIR, "xgboost_y_proba.npy"), y_proba)
 
-    print("✅ Fast XGBoost model saved to /models")
+    print("Fast XGBoost model saved to /models")
 
 if __name__ == "__main__":
     main()

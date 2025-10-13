@@ -43,13 +43,10 @@ doc_vectors = [doc2vec_model.dv[str(i)] for i in range(len(tagged_docs))]
 # ------------------------------
 # Dimensionality reduction for visualization
 # ------------------------------
-# Option 1: PCA
+
 pca = PCA(n_components=2)
 vectors_2d = pca.fit_transform(doc_vectors)
 
-# Option 2: t-SNE (optional, slower but often clearer)
-# tsne = TSNE(n_components=2, random_state=42)
-# vectors_2d = tsne.fit_transform(doc_vectors)
 
 vectors_df = pd.DataFrame(vectors_2d, columns=['x', 'y'])
 vectors_df['label'] = labels

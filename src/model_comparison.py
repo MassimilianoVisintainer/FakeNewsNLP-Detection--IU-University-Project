@@ -1,4 +1,3 @@
-# src/model_comparison.py
 import os
 import numpy as np
 import pandas as pd
@@ -17,7 +16,7 @@ df = pd.DataFrame(all_metrics).T  # transpose so models are rows
 # Save CSV
 csv_path = os.path.join(RESULTS_DIR, "model_comparison.csv")
 df.to_csv(csv_path)
-print(f"✅ Model comparison saved to {csv_path}\n")
+print(f" Model comparison saved to {csv_path}\n")
 print(df)
 
 # --- Plotting ---
@@ -32,5 +31,5 @@ for metric in metrics_to_plot:
     plt.tight_layout()
     plot_path = os.path.join(RESULTS_DIR, f"{metric}_comparison.png")
     plt.savefig(plot_path)
-    print(f"✅ Plot saved: {plot_path}")
+    print(f"Plot saved: {plot_path}")
     plt.close()

@@ -32,4 +32,4 @@ plt.tight_layout()
 plt.savefig(f"{RESULTS_DIR}/model_comparison_plot.png")
 plt.show()
 
-print(f"✅ Model comparison plot saved to {RESULTS_DIR}/model_comparison_plot.png")
+print(f"Model comparison plot saved to {RESULTS_DIR}/model_comparison_plot.png")

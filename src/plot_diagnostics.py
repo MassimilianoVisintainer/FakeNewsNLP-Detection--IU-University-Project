@@ -1,4 +1,3 @@
-# src/plot_diagnostics.py
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,12 +19,12 @@ def load_predictions(model_name):
         y_proba = np.load(os.path.join(MODELS_DIR, f"{model_name}_y_proba.npy"))
         return y_test, y_pred, y_proba
     except FileNotFoundError:
-        print(f"⚠️ Skipping {model_name.upper()} – no saved predictions found.")
+        print(f"Skipping {model_name.upper()} – no saved predictions found.")
         return None, None, None
 
 
 def plot_roc_curves():
-    print("📊 Plotting ROC curves...")
+    print("Plotting ROC curves...")
     plt.figure(figsize=(8, 6))
 
     for model in MODELS:
@@ -47,7 +46,7 @@ def plot_roc_curves():
 
 
 def plot_pr_curves():
-    print("📊 Plotting Precision-Recall curves...")
+    print("Plotting Precision-Recall curves...")
     plt.figure(figsize=(8, 6))
 
     for model in MODELS:
@@ -67,7 +66,7 @@ def plot_pr_curves():
 
 
 def plot_confusion_matrices():
-    print("📊 Plotting confusion matrices...")
+    print(" Plotting confusion matrices...")
     for model in MODELS:
         y_test, y_pred, _ = load_predictions(model)
         if y_test is None:
@@ -85,4 +84,4 @@ if __name__ == "__main__":
     plot_roc_curves()
     plot_pr_curves()
     plot_confusion_matrices()
-    print("✅ All plots saved in /models")
+    print(" All plots saved in /models")

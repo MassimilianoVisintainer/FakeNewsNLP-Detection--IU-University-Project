@@ -81,7 +81,7 @@ def main():
         filename = name.lower().replace(" ", "_") + ".pkl"
         joblib.dump(model, out_dir / filename)
 
-    print("\n✅ Models and vectorizer saved in 'models/'")
+    print("\n Models and vectorizer saved in 'models/'")
 
 
 if __name__ == "__main__":

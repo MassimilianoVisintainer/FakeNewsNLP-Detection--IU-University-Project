@@ -1,4 +1,3 @@
-# src/plot_model_comparison.py
 import numpy as np
 import matplotlib.pyplot as plt
 

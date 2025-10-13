@@ -56,7 +56,7 @@ def main():
     np.save(os.path.join(MODELS_DIR, "naive_bayes_y_pred.npy"), y_pred)
     np.save(os.path.join(MODELS_DIR, "naive_bayes_y_proba.npy"), y_proba)
 
-    print("✅ Naïve Bayes model and predictions saved to /models")
+    print("Naïve Bayes model and predictions saved to /models")
 
 if __name__ == "__main__":
     main()

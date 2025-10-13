@@ -59,7 +59,7 @@ def main():
     np.save(os.path.join(MODELS_DIR, "tfidf_y_pred.npy"), y_pred)
     np.save(os.path.join(MODELS_DIR, "tfidf_y_proba.npy"), y_proba)
 
-    print("✅ TF-IDF baseline model and predictions saved to /models")
+    print("TF-IDF baseline model and predictions saved to /models")
 
 if __name__ == "__main__":
     main()

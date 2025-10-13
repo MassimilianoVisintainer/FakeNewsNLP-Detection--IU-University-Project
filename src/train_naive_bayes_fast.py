@@ -1,4 +1,3 @@
-# train_naive_bayes_fast.py
 import os
 import joblib
 import pandas as pd
@@ -50,7 +49,7 @@ def main():
     np.save(os.path.join(MODELS_DIR, "naive_bayes_y_pred.npy"), y_pred)
     np.save(os.path.join(MODELS_DIR, "naive_bayes_y_proba.npy"), y_proba)
 
-    print("✅ Fast Naïve Bayes model saved to /models")
+    print("Fast Naïve Bayes model saved to /models")
 
 if __name__ == "__main__":
     main()

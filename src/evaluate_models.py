@@ -1,4 +1,3 @@
-# src/evaluate_models.py
 import os
 import numpy as np
 import joblib
@@ -10,7 +9,7 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 
 def evaluate_model(name):
     """Load predictions and evaluate metrics."""
-    print(f"🔹 Evaluating {name}...")
+    print(f"Evaluating {name}...")
 
     y_test = np.load(os.path.join(MODELS_DIR, f"{name}_y_test.npy"))
     y_pred = np.load(os.path.join(MODELS_DIR, f"{name}_y_pred.npy"))
@@ -54,11 +53,11 @@ def main():
         try:
             all_metrics[model] = evaluate_model(model)
         except Exception as e:
-            print(f"⚠️ Skipping {model}, error: {e}")
+            print(f"Skipping {model}, error: {e}")
 
     # Save all results together
     np.save(os.path.join(RESULTS_DIR, "all_metrics.npy"), all_metrics)
-    print("\n📊 All metrics saved in results/all_metrics.npy")
+    print("\n All metrics saved in results/all_metrics.npy")
 
 if __name__ == "__main__":
     main()

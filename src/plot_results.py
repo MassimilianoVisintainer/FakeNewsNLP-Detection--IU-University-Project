@@ -1,4 +1,3 @@
-# src/plot_results.py
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,14 +8,14 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 def plot_metrics():
     metrics_path = os.path.join(RESULTS_DIR, "all_metrics.npy")
     if not os.path.exists(metrics_path):
-        raise FileNotFoundError("⚠️ Run evaluate_models.py first to generate all_metrics.npy")
+        raise FileNotFoundError("Run evaluate_models.py first to generate all_metrics.npy")
 
     all_metrics = np.load(metrics_path, allow_pickle=True).item()
 
     models = list(all_metrics.keys())
     metrics_names = ["accuracy", "precision", "recall", "f1", "roc_auc"]
 
-    # 🔹 Individual plots (per metric)
+    # Individual plots (per metric)
     for metric in metrics_names:
         values = [all_metrics[m].get(metric, None) for m in models if all_metrics[m] is not None]
 
@@ -31,9 +30,9 @@ def plot_metrics():
         out_path = os.path.join(RESULTS_DIR, f"{metric}_comparison.png")
         plt.savefig(out_path)
         plt.close()
-        print(f"✅ Saved {metric} plot -> {out_path}")
+        print(f"Saved {metric} plot -> {out_path}")
 
-    # 🔹 Combined grouped bar chart
+    # Combined grouped bar chart
     x = np.arange(len(models))
     width = 0.15  # width of each bar
 
@@ -52,7 +51,7 @@ def plot_metrics():
     out_path = os.path.join(RESULTS_DIR, "all_metrics_comparison.png")
     plt.savefig(out_path)
     plt.close()
-    print(f"✅ Saved combined metrics plot -> {out_path}")
+    print(f"Saved combined metrics plot -> {out_path}")
 
 if __name__ == "__main__":
     plot_metrics()

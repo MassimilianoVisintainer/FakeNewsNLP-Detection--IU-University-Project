@@ -1,4 +1,3 @@
-# src/bert_quick_train.py
 """
 Quick fine-tuning of DistilBERT for fast evaluation.
 Uses a subset of the dataset to speed up CPU training.
@@ -131,7 +130,7 @@ def main():
     np.save(os.path.join(MODELS_DIR, "bert_y_pred.npy"), y_pred_array)
     np.save(os.path.join(MODELS_DIR, "bert_y_proba.npy"), y_proba_array)
 
-    print("✅ Quick DistilBERT training complete. Predictions saved to /models")
+    print("Quick DistilBERT training complete. Predictions saved to /models")
 
 if __name__ == "__main__":
     main()

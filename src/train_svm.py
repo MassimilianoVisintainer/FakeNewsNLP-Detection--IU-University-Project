@@ -46,7 +46,6 @@ def main():
     y_pred = clf.predict(X_test_tfidf)
     y_proba = clf.predict_proba(X_test_tfidf)[:, 1]
 
-    # Print report
     print(classification_report(y_test, y_pred))
 
     # Save model + vectorizer + test data
@@ -59,7 +58,7 @@ def main():
     np.save(os.path.join(MODELS_DIR, "svm_y_pred.npy"), y_pred)
     np.save(os.path.join(MODELS_DIR, "svm_y_proba.npy"), y_proba)
 
-    print("✅ Fast SVM model and predictions saved to /models")
+    print("Fast SVM model and predictions saved to /models")
 
 if __name__ == "__main__":
     main()

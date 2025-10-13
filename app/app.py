@@ -4,8 +4,7 @@ import joblib
 import numpy as np
 from flask import Flask, render_template, request
 
-# Ensure project root is on sys.path when running this script from the `app/` folder
-# so imports like `from src.preprocessing import ...` work.
+
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -70,7 +69,7 @@ def index():
         model = model_config["model"]
         vectorizer = model_config["vectorizer"]
 
-        # ✅ Proper preprocessing using your TextPreprocessor
+        # Preprocessing using TextPreprocessor
         clean_text = preprocessor.transform(text)
         X = vectorizer.transform([clean_text])
         pred = model.predict(X)[0]

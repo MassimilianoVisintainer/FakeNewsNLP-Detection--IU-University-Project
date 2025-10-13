@@ -23,7 +23,6 @@
         }
     </script>
     <style>
-        /* Custom styles for better focus and readability */
         :root {
             --inter: 'Inter', sans-serif;
         }
@@ -67,10 +66,6 @@
                         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-green focus:border-primary-green transition duration-150 ease-in-out shadow-sm text-gray-dark bg-white"
                     >
                         <option value="">-- Choose a model --</option>
-                        <!-- 
-                            FIX: Using 'key' for the display name. Removed Jinja syntax from 
-                            this comment to resolve the jinja2.exceptions.UndefinedError.
-                        -->
                         {% for key, cfg in models.items() %}
                             <option value="{{ key }}" {% if selected_model == key %}selected{% endif %}>
                                 {{ key }} 

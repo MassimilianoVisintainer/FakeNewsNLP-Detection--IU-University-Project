@@ -1,4 +1,3 @@
-# src/summarize_results.py
 import os
 import json
 import matplotlib.pyplot as plt
@@ -20,7 +19,7 @@ def summarize_metrics(metrics):
     # Convert dict to DataFrame
     df = pd.DataFrame(metrics).T
     df = df[["accuracy", "precision", "recall", "f1"]]  # ensure consistent order
-    print("\n📊 Model Performance Summary:\n")
+    print("\n Model Performance Summary:\n")
     print(df.round(4))
     return df
 
@@ -33,12 +32,12 @@ def plot_metrics(df):
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, "model_comparison.png"))
     plt.show()
-    print(f"✅ Saved comparison plot to {os.path.join(RESULTS_DIR, 'model_comparison.png')}")
+    print(f"Saved comparison plot to {os.path.join(RESULTS_DIR, 'model_comparison.png')}")
 
 if __name__ == "__main__":
     metrics = load_metrics()
     if not metrics:
-        print("❌ No metrics found in results/. Run evaluate_models.py first.")
+        print("No metrics found in results/. Run evaluate_models.py first.")
     else:
         df = summarize_metrics(metrics)
         plot_metrics(df)
